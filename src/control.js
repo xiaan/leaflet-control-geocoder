@@ -12,7 +12,8 @@ module.exports = {
 			errorMessage: 'Nothing found.',
 			suggestMinLength: 3,
 			suggestTimeout: 250,
-			defaultMarkGeocode: true
+			defaultMarkGeocode: true,
+			latLonZoom: 16
 		},
 
 		includes: L.Mixin.Events,
@@ -36,9 +37,9 @@ module.exports = {
 			this._map = map;
 			this._container = container;
 
-			icon.innerHTML = '&nbsp;';
+			icon.appendChild(L.DomUtil.create('i', 'fa fa-search'));
 			icon.type = 'button';
-                        icon.title = 'Search';
+			icon.title = 'Search';
 
 			input = this._input = L.DomUtil.create('input', '', form);
 			input.type = 'text';
@@ -127,6 +128,23 @@ module.exports = {
 			return this;
 		},
 
+		_parseLatLon: function(input) {
+			var re = /(-?\d+\.\d+),?\s(-?\d+\.\d+)/;
+			var latlon = re.exec(input);
+			if (latlon != undefined) {
+				var result = {
+					icon: undefined,
+					name: latlon[1] + "," + latlon[2],
+					html: undefined,
+					bbox: undefined,
+					center: L.latLng(latlon[1], latlon[2]),
+				}
+				return result;
+			} else {
+				return null;
+			}
+		},
+
 		_geocode: function(suggest) {
 			var requestCount = ++this._requestCount,
 				mode = suggest ? 'suggest' : 'geocode';
@@ -136,13 +154,19 @@ module.exports = {
 				this._clearResults();
 			}
 
-			this.fire('start' + mode);
-			this.options.geocoder[mode](this._input.value, function(results) {
-				if (requestCount === this._requestCount) {
-					this.fire('finish' + mode);
-					this._geocodeResult(results, suggest);
-				}
-			}, this);
+			var latlon = this._parseLatLon(this._input.value);
+
+			if (latlon) {
+				this._map.setView(latlon.center, this.options.latLonZoom);
+			} else {
+				this.fire('start' + mode);
+				this.options.geocoder[mode](this._input.value, function(results) {
+					if (requestCount === this._requestCount) {
+						this.fire('finish' + mode);
+						this._geocodeResult(results, suggest);
+					}
+				}, this);
+			}
 		},
 
 		_geocodeResultSelected: function(result) {
