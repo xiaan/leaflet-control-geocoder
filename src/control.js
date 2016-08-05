@@ -38,6 +38,7 @@ module.exports = {
 
 			icon.innerHTML = '&nbsp;';
 			icon.type = 'button';
+                        icon.title = 'Search';
 
 			input = this._input = L.DomUtil.create('input', '', form);
 			input.type = 'text';
