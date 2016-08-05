@@ -35,11 +35,11 @@
     "leaflet": "global:L"
   },
   "dependencies": {
+    "browserify": "^11.0.1",
+    "browserify-shim": "^3.8.10",
+    "es3ify": "^0.1.4",
     "leaflet": "~0.7.7"
   },
   "devDependencies": {
-    "browserify": "^11.0.1",
-    "browserify-shim": "^3.8.10",
-    "es3ify": "^0.1.4"
   }
 }
