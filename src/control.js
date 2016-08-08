@@ -129,20 +129,26 @@ module.exports = {
 		},
 
 		_parseLatLon: function(input) {
-			var re = /(-?\d+\.\d+),?\s(-?\d+\.\d+)/;
-			var latlon = re.exec(input);
-			if (latlon != undefined) {
-				var result = {
-					icon: undefined,
-					name: latlon[1] + "," + latlon[2],
-					html: undefined,
-					bbox: undefined,
-					center: L.latLng(latlon[1], latlon[2]),
-				}
-				return result;
-			} else {
-				return null;
+			var coords = input.split(/[,\s]+/);
+
+			// Terminate early if not in two parts
+			if (coords.length !== 2) { return null; }
+
+			var lat = parseFloat(coords[0]);
+			var lon = parseFloat(coords[1]);
+
+			//Terminate early if not a number or out of bounds
+			if (typeof lat !== 'number' || typeof lon !== 'number') { return null; }
+			if (Math.abs(lat) > 90 || Math.abs(lon) > 180 ) { return null; }
+
+			var result = {
+				icon: undefined,
+				name: coords[0] + "," + coords[1],
+				html: undefined,
+				bbox: undefined,
+				center: L.latLng(coords[0], coords[1]),
 			}
+			return result;
 		},
 
 		_geocode: function(suggest) {
